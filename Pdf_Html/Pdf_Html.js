@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const PDFDocument = require('pdfkit');
-
+const fs = require('fs');
 const Curso = require('../models/curso');
 const Alumno = require('../models/alumno');
 const Profesor = require('../models/profesores');

@@ -72,7 +72,7 @@ const Checkprofesores = async (req, res, next) => {
  *    
  */
 // CREATE
-router.post('/api/createPro',Checkprofesores, async (req, res) => {
+router.post('/api/createPro', async (req, res) => {
     const profesor = new Profesor({
       Nombre: req.body.Nombre,
       Apellidos: req.body.Apellidos,

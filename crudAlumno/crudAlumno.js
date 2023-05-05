@@ -172,7 +172,7 @@ const checkAlumnoExists = async (req, res, next) => {
  */
 
 
-  router.post('/api/createAl',verifyToken,isPadrecorreo, async (req, res) => {
+  router.post('/api/createAl',verifyToken,isProfesor, async (req, res) => {
     const alumno = new Alumno({
       nombre: req.body.nombre,
       Apellidos: req.body.Apellidos,
