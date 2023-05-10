@@ -15,6 +15,7 @@ const Checkprofesores = async (req, res, next) => {
     res.status(500).json({ error: 'Error al buscar el profesor.' });
   }
 };
+//get Profesores
 router.get('/api/getPro', async function(req, res) {
   try {
     const profesores = await Profesor.find();
