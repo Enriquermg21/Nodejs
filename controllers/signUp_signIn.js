@@ -2,91 +2,7 @@ const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
 const nodemailer = require('nodemailer');
-
-/**
- * @swagger
- * /signup:
- *   post:
- *     summary: Crea un nuevo usuario
- *     tags:
- *       - Autenticación
- *     requestBody:
- *       description: Objeto con los datos del usuario a crear
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               Nombre:
- *                 type: string
- *                 example: John Doe
- *               Email:
- *                 type: string
- *                 example: johndoe@example.com
- *               Password:
- *                 type: string
- *                 example: mypassword123
- *               Roles:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["Profesor"]
- *     responses:
- *       200:
- *         description: Retorna el token de autenticación del nuevo usuario
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzMjU3NzUwMDAwMDAwMDAwMDAwMDAwMSIsImlhdCI6MTYyMjg3MjcyMSwiZXhwIjoxNjIyOTU5MTIxfQ.1D6m-y5J2l5OR5zlZkf5ah8Cz0H2QVUhjKlltBhqap8
- *       400:
- *         description: Datos del usuario faltantes o inválidos
- *       500:
- *         description: Error en el servidor al crear el usuario
- */
-
-/**
- * @swagger
- * /api/autorizacion/signin:
- *   post:
- *     summary: Iniciar sesión con email y contraseña
- *     tags:
- *       - Autenticación
- *     requestBody:
- *       description: Objeto con los datos del usuario que desea iniciar sesión
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: johndoe@example.com
- *               password:
- *                 type: string
- *                 example: mypassword123
- *     responses:
- *       200:
- *         description: Retorna el token de autenticación del usuario
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *       401:
- *         description: Credenciales inválidas
- *       404:
- *         description: Usuario no encontrado
- *       500:
- *         description: Error en el servidor al iniciar sesión
- */
+const enviarCorreoRestablecerContraseña = require('../nodemailer/nodemailer')
 
 
 module.exports = {
@@ -117,18 +33,38 @@ module.exports = {
 
   
   signIn: async (req, res) => {
-    const buscarUsuario = await Usuario.findOne({Email: req.body.email}).populate("Roles")
-    if(!buscarUsuario) return res.status(404).json({message:"Usuario no encontrado"})
+    const { email, password } = req.body;
+    const buscarUsuario = await Usuario.findOne({ Email: email }).populate("Roles");
 
-    const compararContraseña = await Usuario.compararContraseña(req.body.password,buscarUsuario.Password)
-
-    if(!compararContraseña) return res.status(401).json({token:null,message:'Contraseña invalida'}){
-
+    if (!buscarUsuario) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
-    const token = jwt.sign({id:buscarUsuario._id}, "instituto-api",{
+
+    const compararContraseña = await Usuario.compararContraseña(password, buscarUsuario.Password);
+
+    if (!compararContraseña) {
+      buscarUsuario.intentosFallidos++;
+
+      if (buscarUsuario.intentosFallidos >= 3) {
+        // Llamada al método para enviar correo de restablecimiento de contraseña
+        await enviarCorreoRestablecerContraseña(email);
+
+        return res.status(401).json({ token: null, message: 'Contraseña inválida. Se ha enviado un correo para restablecerla.' });
+      }
+
+      await buscarUsuario.save();
+      return res.status(401).json({ token: null, message: 'Contraseña inválida' });
+    }
+
+    buscarUsuario.intentosFallidos = 0;
+    await buscarUsuario.save();
+
+    const token = jwt.sign({ id: buscarUsuario._id }, "instituto-api", {
       expiresIn: 86400
-    })
+    });
     res.json({token})
   },
+
+
  
 };
