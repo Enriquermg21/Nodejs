@@ -1,6 +1,7 @@
 const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
+const nodemailer = require('nodemailer');
 
 /**
  * @swagger
@@ -107,8 +108,8 @@ module.exports = {
       nuevoUsuario.Roles = [role.id];
     }
     const usuarioGuardado = await nuevoUsuario.save();
-    const token = jwt.sign({id:usuarioGuardado._id},"instituto-api",{
-      expiresIn:86400 
+    const token = jwt.sign({id:usuarioGuardado._id},"secreto",{
+      expiresIn:'1h' 
     });
     
     res.json({token});
@@ -121,7 +122,9 @@ module.exports = {
 
     const compararContraseña = await Usuario.compararContraseña(req.body.password,buscarUsuario.Password)
 
-    if(!compararContraseña) return res.status(401).json({token:null,message:'Contraseña invalida'})
+    if(!compararContraseña) return res.status(401).json({token:null,message:'Contraseña invalida'}){
+
+    }
     const token = jwt.sign({id:buscarUsuario._id}, "instituto-api",{
       expiresIn: 86400
     })
