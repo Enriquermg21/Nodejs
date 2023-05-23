@@ -67,6 +67,24 @@ router.put('/api/clientes/:id', async (req, res) => {
   }
 });
 
+//PATCH
+router.patch('/api/clientes/:id', async (req, res) => {
+  try {
+    const patch = {
+      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    };
+
+    const cliente = await Cliente.findByIdAndUpdate(req.params.id, patch, { new: true });
+    if (!cliente) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    res.json(cliente);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar el cliente' });
+  }
+});
+
+
 // DELETE
 router.delete('/api/clientes/:id', async (req, res) => {
   try {

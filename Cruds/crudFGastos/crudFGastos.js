@@ -78,6 +78,23 @@ router.put('/api/gastos/:id', async (req, res) => {
   }
 });
 
+//PATCH
+router.patch('/api/facturas-gastos/:id', async (req, res) => {
+  try {
+    const patch = {
+      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    };
+
+    const facturaGastos = await FGastos.findByIdAndUpdate(req.params.id, patch, { new: true });
+    if (!facturaGastos) {
+      return res.status(404).json({ error: 'Factura de gastos no encontrada' });
+    }
+    res.json(facturaGastos);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar la factura de gastos' });
+  }
+});
+
 // DELETE
 router.delete('/api/gastos/:id', async (req, res) => {
   try {

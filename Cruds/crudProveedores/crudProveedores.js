@@ -67,6 +67,24 @@ router.put('/api/proveedores/:id', async (req, res) => {
   }
 });
 
+//PATCH
+router.patch('/api/proveedores/:id', async (req, res) => {
+  try {
+    const patch = {
+      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    };
+
+    const proveedor = await Proveedor.findByIdAndUpdate(req.params.id, patch, { new: true });
+    if (!proveedor) {
+      return res.status(404).json({ error: 'Proveedor no encontrado' });
+    }
+    res.json(proveedor);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar el proveedor' });
+  }
+});
+
+
 // DELETE
 router.delete('/api/proveedores/:id', async (req, res) => {
   try {

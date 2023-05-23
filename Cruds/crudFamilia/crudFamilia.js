@@ -52,6 +52,24 @@ router.put('/api/familias/:id', async (req, res) => {
   }
 });
 
+//PATCH
+router.patch('/api/familias/:id', async (req, res) => {
+  try {
+    const patch = {
+      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    };
+
+    const familia = await Familia.findByIdAndUpdate(req.params.id, patch, { new: true });
+    if (!familia) {
+      return res.status(404).json({ error: 'Familia no encontrada' });
+    }
+    res.json(familia);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar la familia' });
+  }
+});
+
+
 // DELETE
 router.delete('/api/familias/:id', async (req, res) => {
   try {
