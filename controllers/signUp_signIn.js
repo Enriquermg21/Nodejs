@@ -1,7 +1,6 @@
-const Usuario = require("../models/Usuario");
+const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
-const Role = require("../models/Roles");
-const Padre = require("../models/padre");
+const Role = require("../modelos/roles");
 
 /**
  * @swagger
@@ -104,30 +103,9 @@ module.exports = {
       const buscaRole = await Role.find({Rol: {$in: Roles}})
       nuevoUsuario.Roles = buscaRole.map(role => role._id)
     }else{
-      const role = await Role.findOne({Rol:"Alumno"})
+      const role = await Role.findOne({Rol:"Usuario"})
       nuevoUsuario.Roles = [role.id];
     }
-    //-------------------- Creacion de padre una vez añadido el usuario
-
-    const buscoPadre = await Role.find({_id: {$in: nuevoUsuario.Roles}})
-    for(let i = 0; i < buscoPadre.length; i++){
-      if(buscoPadre[i].Rol === 'Padre'){
-        const padre = new Padre({
-          nombre: req.body.Nombre,
-          apellido: req.body.apellido,
-          correo: req.body.Email,
-          hijos: req.body.hijos
-        });
-        try {
-          const newpadre = await padre.save();
-          console.log(newpadre)
-        } catch (err) {
-          res.status(400).json({ message: err.message });
-        }
-      }
-  }
-
-    //--------------------
     const usuarioGuardado = await nuevoUsuario.save();
     const token = jwt.sign({id:usuarioGuardado._id},"instituto-api",{
       expiresIn:86400 
@@ -135,6 +113,8 @@ module.exports = {
     
     res.json({token});
   },
+
+  
   signIn: async (req, res) => {
     const buscarUsuario = await Usuario.findOne({Email: req.body.email}).populate("Roles")
     if(!buscarUsuario) return res.status(404).json({message:"Usuario no encontrado"})
