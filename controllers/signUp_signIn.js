@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
 const nodemailer = require('nodemailer');
 const enviarCorreoRestablecerContraseña = require('../nodemailer/nodemailer')
+let intentosFallidos = 0;
 
+while(intentosFallidos>= 3){
+  this.signIn();
+}
 
 module.exports = {
   signUp: async (req, res) => {
@@ -30,8 +34,6 @@ module.exports = {
     
     res.json({token});
   },
-
-  
   signIn: async (req, res) => {
     const { email, password } = req.body;
     const buscarUsuario = await Usuario.findOne({ Email: email }).populate("Roles");
@@ -41,13 +43,16 @@ module.exports = {
     }
 
     const compararContraseña = await Usuario.compararContraseña(password, buscarUsuario.Password);
-
+    
     if (!compararContraseña) {
-      buscarUsuario.intentosFallidos++;
-
-      if (buscarUsuario.intentosFallidos >= 3) {
+      
+      intentosFallidos++;
+      console.log(intentosFallidos)
+      if (intentosFallidos >= 3) {
         // Llamada al método para enviar correo de restablecimiento de contraseña
+        console.log(email)
         await enviarCorreoRestablecerContraseña(email);
+        console.log(email)
 
         return res.status(401).json({ token: null, message: 'Contraseña inválida. Se ha enviado un correo para restablecerla.' });
       }
@@ -65,6 +70,4 @@ module.exports = {
     res.json({token})
   },
 
-
- 
 };

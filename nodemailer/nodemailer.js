@@ -12,12 +12,16 @@ async function enviarCorreoRestablecerContraseña(email) {
       throw new Error('Usuario no encontrado');
     }
 
-    // Generar token de restablecimiento de contraseña
     const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '15m' });
-
     // Enviar correo electrónico con el enlace de restablecimiento de contraseña
     const transporter = nodemailer.createTransport({
-      // Configuración del transporte de correo (SMTP, API de servicios de correo, etc.)
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+          user: 'dam2fct@gmail.com',
+          pass: 'dam2fctfran'
+        }
     });
 
     const mailOptions = {
