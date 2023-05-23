@@ -2,7 +2,11 @@ const nodemailer = require('nodemailer');
 const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
-
+const CLIENTD_ID = "";
+const CLIENT_SECRET = "";
+const REDIRECT_URI = "";
+const REFRESH_TOKEN = "";
+CONST OAUTH2CLIENT = 
 
 async function enviarCorreoRestablecerContraseña(email) {
   try {
