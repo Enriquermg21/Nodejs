@@ -16,7 +16,7 @@ router.use("/",crudFamilia)
 router.use("/",crudProveedores)
 
 //Rutas para autorizacion
-router.post('/api/autorizacion/signup',autor.signUp)
-router.post('/api/autorizacion/signin',autor.signIn)*/
+//router.post('/api/autorizacion/signup',autor.signUp)
+//router.post('/api/autorizacion/signin',autor.signIn)
 
 module.exports = router;
