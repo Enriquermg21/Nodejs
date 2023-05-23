@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const FGastos = require('../modelos/f_gastos');
+const FGastos = require('../../modelos/f_gastos');
 
 // CREATE
 router.post('/api/gastos', async (req, res) => {
