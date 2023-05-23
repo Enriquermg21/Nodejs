@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Familia = require('../modelos/familia');
+const Familia = require('../../modelos/familia');
 
 // CREATE
 router.post('/api/familias', async (req, res) => {

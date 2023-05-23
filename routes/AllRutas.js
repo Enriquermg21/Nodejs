@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const autor = require("../controllers/signUp_signIn");
-const crudArticulo = require('../Cruds/crudArticulo/crudArticulo');
-
-const crudArticulos = require('../Cruds/crudArticulo/crudAlumno');
+const crudArticulos = require('../Cruds/crudArticulo/crudArticulo');
 const crudCliente = require('../Cruds/crudCliente/crudCliente');
 const crudFGastos = require('../Cruds/crudFGastos/crudFGastos');
 const crudFamilia = require('../Cruds/crudFamilia/crudFamilia');

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Proveedor = require('../modelos/proveedor');
+const Proveedor = require('../../modelos/proveedores');
 
 // CREATE
 router.post('/api/proveedores', async (req, res) => {
