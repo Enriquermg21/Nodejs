@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+x
 const clienteSchema = new mongoose.Schema({
       Razon_social: {
         type: String
