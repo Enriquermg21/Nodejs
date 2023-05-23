@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Articulo = require('../../modelos/articulos');
+const Articulos = require('../../modelos/articulos');
 
 // CREATE
 router.post('/api/articulos', async (req, res) => {
@@ -32,8 +32,10 @@ router.post('/api/articulos', async (req, res) => {
 
 // READ all
 router.get('/api/articulos', async (req, res) => {
+  
   try {
-    const articulos = await Articulo.find();
+    const articulosQuery = Articulos.find();
+    const articulos = await articulosQuery.exec();
     res.json(articulos);
   } catch (err) {
     res.status(500).json({ error: 'Error al obtener los artículos' });

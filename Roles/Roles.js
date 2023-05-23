@@ -1,4 +1,4 @@
-const role = require('../models/Roles');
+const role = require('.././modelos/roles');
 
 const createRoles = async ()=> {
     try{
@@ -6,9 +6,8 @@ const createRoles = async ()=> {
     if(count>0) return;
 
     const values = await Promise.all([
-        new role ({Rol:'Alumno'}).save(),
-        new role ({Rol:'Padre'}).save(),
-        new role ({Rol:'Profesor'}).save()
+        new role ({Rol:'User'}).save(),
+        new role ({Rol:'Admin'}).save()
     ])
     console.log(values);
     }
