@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const autor = require("../controllers/signUp_signIn");
-/*const crudAlumnos = require('../crudAlumno/crudAlumno');
+const crudArticulo = require('../Cruds/crudArticulo/crudArticulo');
+/*
 const crudProfesor = require('../crudProfesor/crudProfesor');
 const crudClases = require('../crudClases/crudClases');
 const crudCurso = require('../crudCurso/crudCurso');
@@ -10,9 +11,10 @@ const userPdf_Html = require("../Pdf_Html/Pdf_Html");
 
 //Ruta para hacer un Pdf y un HTML
 router.use("/",userPdf_Html)
-
+*/
 //Rutas para Crud
-router.use("/",crudAlumnos)
+router.use("/",crudArticulo)
+/*
 router.use("/",crudProfesor)
 router.use("/",crudClases)
 router.use("/",crudCurso)
