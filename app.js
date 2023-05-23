@@ -2,6 +2,7 @@ const express = require ("express");
 const mongoose = require("mongoose");
 const initdb = require('./dbconfig/db')
 const AllRutas = require('./routes/AllRutas');
+const createRole = require("./Roles/Roles");
 const app = express();
 
 
@@ -14,7 +15,7 @@ initdb();
 app.use(express.json());
 
 //Se crean los roles si no han sido creados
-//createRole();
+createRole();
 
 //Ruta principal
 app.use("/", AllRutas)

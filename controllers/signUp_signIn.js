@@ -103,7 +103,7 @@ module.exports = {
       const buscaRole = await Role.find({Rol: {$in: Roles}})
       nuevoUsuario.Roles = buscaRole.map(role => role._id)
     }else{
-      const role = await Role.findOne({Rol:"Usuario"})
+      const role = await Role.findOne({Rol:"User"})
       nuevoUsuario.Roles = [role.id];
     }
     const usuarioGuardado = await nuevoUsuario.save();
