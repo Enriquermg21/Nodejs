@@ -4,7 +4,7 @@ const Articulos = require('../../modelos/articulos');
 const Articulo = require('../../modelos/articulos');
 
 // CREATE
-router.post('/api/CrearArticulo', async (req, res) => {
+router.post('/api/articulos', async (req, res) => {
   try {
     const articulo = new Articulo({
       Codigo: req.body.Codigo,
@@ -44,7 +44,7 @@ router.get('/api/articulos', async (req, res) => {
 });
 
 // READ one
-router.get('/api/getarticulos/:id', async (req, res) => {
+router.get('/api/articulos/:id', async (req, res) => {
   try {
     const articulo = await Articulo.findById(req.params.id);
     if (!articulo) {
@@ -57,7 +57,7 @@ router.get('/api/getarticulos/:id', async (req, res) => {
 });
 
 // UPDATE
-router.put('/api/Updatearticulos/:id', async (req, res) => {
+router.put('/api/articulos/:id', async (req, res) => {
   try {
     const articulo = await Articulo.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!articulo) {
@@ -70,7 +70,7 @@ router.put('/api/Updatearticulos/:id', async (req, res) => {
 });
 
 // DELETE
-router.delete('/api/delarticulos/:id', async (req, res) => {
+router.delete('/api/articulos/:id', async (req, res) => {
   try {
     const result = await Articulo.findByIdAndDelete(req.params.id);
     if (!result) {
