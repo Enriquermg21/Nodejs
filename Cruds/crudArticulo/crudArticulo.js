@@ -68,6 +68,22 @@ router.put('/api/articulos/:id', async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar el artículo' });
   }
 });
+//PATCH
+router.patch('/api/articulos/:id', async (req, res) => {
+  try {
+    const patch = {
+      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    };
+
+    const articulo = await Articulo.findByIdAndUpdate(req.params.id, patch, { new: true });
+    if (!articulo) {
+      return res.status(404).json({ error: 'Artículo no encontrado' });
+    }
+    res.json(articulo);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar el artículo' });
+  }
+});
 
 // DELETE
 router.delete('/api/articulos/:id', async (req, res) => {
