@@ -2,7 +2,8 @@ const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
 const nodemailer = require('nodemailer');
-
+let intentosFallidos = 0;
+const MAX_INTENTOS_FALLIDOS = 3;
 /**
  * @swagger
  * /signup:
@@ -122,8 +123,35 @@ module.exports = {
 
     const compararContraseña = await Usuario.compararContraseña(req.body.password,buscarUsuario.Password)
 
-    if(!compararContraseña) return res.status(401).json({token:null,message:'Contraseña invalida'}){
+    if (!compararContraseña) {
 
+      if (intentosFallidos >= MAX_INTENTOS_FALLIDOS) {
+        // Genera un token de recuperación de contraseña
+        const tokenRecuperacion = generarTokenRecuperacion();
+    
+        // Guarda el token de recuperación de contraseña en la base de datos para el usuario correspondiente
+    
+        // Configura el correo electrónico de recuperación de contraseña
+        const correoRecuperacion = {
+          from: 'tu_correo_electronico',
+          to: 'correo_electronico_del_usuario',
+          subject: 'Recuperación de Contraseña',
+          text: `Has excedido el número máximo de intentos de inicio de sesión. Haz clic en el siguiente enlace para recuperar tu contraseña: ${enlaceRecuperacion}`,
+          // Puedes utilizar HTML para personalizar el contenido del correo electrónico si lo deseas
+          // html: '<p>Has excedido el número máximo de intentos de inicio de sesión. Haz clic en el siguiente enlace para recuperar tu contraseña: <a href="' + enlaceRecuperacion + '">Recuperar Contraseña</a></p>'
+        };
+    
+        // Envía el correo electrónico de recuperación de contraseña
+        transporter.sendMail(correoRecuperacion, (error, info) => {
+          if (error) {
+            console.log('Error al enviar el correo de recuperación de contraseña:', error);
+            // Maneja el error adecuadamente, por ejemplo, enviando una respuesta de error al cliente
+          } else {
+            console.log('Correo de recuperación de contraseña enviado:', info.response);
+            // Envía una respuesta exitosa al cliente, informándole que se ha enviado el correo de recuperación de contraseña
+          }
+        });
+      }
     }
     const token = jwt.sign({id:buscarUsuario._id}, "instituto-api",{
       expiresIn: 86400
