@@ -22,7 +22,7 @@ async function enviarCorreoRestablecerContraseña(email) {
 
     const mailOptions = {
       from: 'dam2fct@gmail.com',
-      to: usuario.Email,
+      to: 'dam2fct@gmail.com',
       subject: 'Restablecimiento de contraseña',
       html: 
         `<p>Hola ${usuario.Nombre},</p>
