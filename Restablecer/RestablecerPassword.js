@@ -8,7 +8,7 @@ router.patch('/users/password', async (req, res) => {
   const { token, password } = req.body;
 
   try {
-    console.log('Token recibido:', token);
+    
 
     // Verificar y decodificar el token de restablecimiento de contraseña
     const decodedToken = jwt.verify(token, 'secreto', { expiresIn: '10s' });
