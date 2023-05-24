@@ -46,7 +46,7 @@ async function sendMail(email) {
       html: 
         `<p>Hola ${usuario.Nombre},</p>
         <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para cambiarla:</p>
-        <a href="http://localhost:3004/users/password/${token}">Restablecer contraseña</a>
+        <a href="http://localhost:3004/users/password">Restablecer contraseña</a>
       `
     };
     
