@@ -1,8 +1,6 @@
 const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
-const nodemailer = require('nodemailer');
-const enviarCorreoRestablecerContraseña = require('../nodemailer/nodemailer');
 const sendMail = require("../nodemailer/nodemailer");
 let intentosFallidos = 0;
 
@@ -37,7 +35,7 @@ module.exports = {
   },
   signIn: async (req, res) => {
     const { email, password } = req.body;
-    const buscarUsuario = await Usuario.findOne({ Email: email }).populate("Roles");
+    const buscarUsuario = await Usuario.findOne({ Email: email });
 
     if (!buscarUsuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
