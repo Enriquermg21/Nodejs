@@ -2,7 +2,8 @@ const Usuario = require("../modelos/usuarios");
 const jwt = require('jsonwebtoken');
 const Role = require("../modelos/roles");
 const nodemailer = require('nodemailer');
-const enviarCorreoRestablecerContraseña = require('../nodemailer/nodemailer')
+const enviarCorreoRestablecerContraseña = require('../nodemailer/nodemailer');
+const sendMail = require("../nodemailer/nodemailer");
 let intentosFallidos = 0;
 
 while(intentosFallidos>= 3){
@@ -50,10 +51,7 @@ module.exports = {
       console.log(intentosFallidos)
       if (intentosFallidos >= 3) {
         // Llamada al método para enviar correo de restablecimiento de contraseña
-        console.log(email)
-        await enviarCorreoRestablecerContraseña(email);
-        console.log(email)
-
+        await sendMail(email);
         return res.status(401).json({ token: null, message: 'Contraseña inválida. Se ha enviado un correo para restablecerla.' });
       }
 

@@ -14,10 +14,15 @@ const oAuth2Client =  new google.auth.OAuth2(
 );
 oAuth2Client.setCredentials({refresh_token : REFRESH_TOKEN})
 
-async function enviarCorreoRestablecerContraseña() {
+async function sendMail(email) {
+  const usuario = await Usuario.findOne({ Email:email });
+  
+  if (!usuario) {
+    throw new Error('Usuario no encontrado');
+  }
   try {
-    const usuario = await Usuario.findOne({ Email:email });
     const accessToken=await oAuth2Client.getAccessToken()
+    
     // Enviar correo electrónico con el enlace de restablecimiento de contraseña
     const transporter = nodemailer.createTransport({
       service:"gmail",
@@ -26,15 +31,17 @@ async function enviarCorreoRestablecerContraseña() {
         user:"dam2fct@gmail.com",
         clientId:CLIENTD_ID,
         clientSecret:CLIENT_SECRET,
-        refresh_Token:REFRESH_TOKEN,
+        refreshToken:REFRESH_TOKEN,
         accessToken:accessToken
       }
       
     });
+    
     const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '15m' });
+    
     const mailOptions = {
       from: 'dam2fct@gmail.com',
-      to: 'dam2fct@gmail.com',
+      to: usuario.Email,
       subject: 'Restablecimiento de contraseña',
       html: 
         `<p>Hola ${usuario.Nombre},</p>
@@ -43,22 +50,17 @@ async function enviarCorreoRestablecerContraseña() {
       `
     };
     
-    if (!usuario) {
-      throw new Error('Usuario no encontrado');
-    }
     
-    const info = await transporter.enviarCorreoRestablecerContraseña(mailOptions);
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log(info)
     console.log('Correo electrónico enviado', info.response);
-    return {info};
+    return info;
 
   } catch (error) {
     console.log('Error al enviar el correo electrónico', error);
     throw new Error('Error al enviar el correo electrónico');
   }
 }
-enviarCorreoRestablecerContraseña()
-  .then((result)=>result.status(200).send("enviado"))
-  .catch((error)=>console.log(error.message));
 
-
-module.exports = enviarCorreoRestablecerContraseña;
+module.exports = sendMail;
