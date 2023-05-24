@@ -9,6 +9,7 @@ const crudProveedores = require('../Cruds/crudProveedores/crudProveedores');
 const restablecerPassword = require('../Restablecer/RestablecerPassword');
 
 
+
 //Rutas para Crud
 router.use("/",crudArticulos)
 router.use("/",crudCliente)

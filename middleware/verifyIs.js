@@ -1,8 +1,5 @@
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
-const Role = require('../models/Roles');
-const Alumno = require('../models/alumno');
-const Padre = require('../models/padre');
 
 const verifyToken = async(req,res,next)=>{
     try{let token = req.headers['token'] || req.headers['authorization'];
@@ -21,7 +18,4 @@ const verifyToken = async(req,res,next)=>{
     }
     
 }
-
-
-  
-module.exports = { verifyToken};
+module.exports = { verifyToken,routeDuration};

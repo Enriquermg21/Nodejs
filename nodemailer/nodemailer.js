@@ -1,6 +1,6 @@
+let enlaceHabilitado = true;
 const nodemailer = require('nodemailer');
 const Usuario = require("../modelos/usuarios");
-const jwt = require('jsonwebtoken');
 const { google } = require('googleapis');
 const CLIENTD_ID = "975928472019-tpgpvt9dlcoau2rmdf13ubh6b71ec2n0.apps.googleusercontent.com";
 const CLIENT_SECRET = "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";
@@ -22,8 +22,6 @@ async function sendMail(email) {
   }
   try {
     const accessToken=await oAuth2Client.getAccessToken()
-    
-    // Enviar correo electrónico con el enlace de restablecimiento de contraseña
     const transporter = nodemailer.createTransport({
       service:"gmail",
       auth:{
@@ -36,9 +34,6 @@ async function sendMail(email) {
       }
       
     });
-    
-    const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '15m' });
-    
     const mailOptions = {
       from: 'dam2fct@gmail.com',
       to: usuario.Email,
@@ -46,17 +41,14 @@ async function sendMail(email) {
       html: 
         `<p>Hola ${usuario.Nombre},</p>
         <p>Has solicitado restablecer tu contraseña. Haz clic en el siguiente enlace para cambiarla:</p>
-        <a href="http://localhost:3004/users/password">Restablecer contraseña</a>
+        <a id="resetLink" href="http://localhost:3004/users/password">Restablecer contraseña</a>
       `
     };
     
-    
-    
     const info = await transporter.sendMail(mailOptions);
-    console.log(info)
-    console.log('Correo electrónico enviado', info.response);
-    return info;
+    console.log('Correo electrónico enviado');
 
+    return info;
   } catch (error) {
     console.log('Error al enviar el correo electrónico', error);
     throw new Error('Error al enviar el correo electrónico');

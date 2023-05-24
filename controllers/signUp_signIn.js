@@ -50,11 +50,13 @@ module.exports = {
       if (intentosFallidos >= 3) {
         // Llamada al método para enviar correo de restablecimiento de contraseña
         await sendMail(email);
-        return res.status(401).json({ token: null, message: 'Contraseña inválida. Se ha enviado un correo para restablecerla.' });
+        intentosFallidos=0;
+        return res.status(401).json({ message: 'Contraseña inválida. Se ha enviado un correo para restablecerla.' });
+        
       }
-
+      
       await buscarUsuario.save();
-      return res.status(401).json({ token: null, message: 'Contraseña inválida' });
+      return res.status(401).json({message: 'Contraseña inválida' });
     }
 
     buscarUsuario.intentosFallidos = 0;
