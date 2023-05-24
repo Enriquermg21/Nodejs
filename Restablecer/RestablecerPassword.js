@@ -8,7 +8,7 @@
   app.use(express.urlencoded({ extended: true }));
  
   // Ruta para cambiar la contraseña de un usuario
-    app.patch('/resetPassword', async (req, res) => {
+    app.patch('/users/password', async (req, res) => {
     const { email, contraseñaantigua, nuevacontraseña } = req.body;
   
     try {
