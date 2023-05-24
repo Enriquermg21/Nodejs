@@ -6,19 +6,20 @@ const crudCliente = require('../Cruds/crudCliente/crudCliente');
 const crudFGastos = require('../Cruds/crudFGastos/crudFGastos');
 const crudFamilia = require('../Cruds/crudFamilia/crudFamilia');
 const crudProveedores = require('../Cruds/crudProveedores/crudProveedores');
-const contraseña = require('../Restablecer/RestablecerPassword');
+const restablecerPassword = require('../Restablecer/RestablecerPassword');
 
+// Rutas para CRUD
+router.use("/", crudArticulos);
+router.use("/", crudCliente);
+router.use("/", crudFGastos);
+router.use("/", crudFamilia);
+router.use("/", crudProveedores);
 
-//Rutas para Crud
-router.use("/",crudArticulos)
-router.use("/",crudCliente)
-router.use("/",crudFGastos)
-router.use("/",crudFamilia)
-router.use("/",crudProveedores)
+// Rutas para autorización
+router.post('/api/autorizacion/signup', autor.signUp);
+router.post('/api/autorizacion/signin', autor.signIn);
 
-//Rutas para autorizacion
-router.post('/api/autorizacion/signup',autor.signUp)
-router.post('/api/autorizacion/signin',autor.signIn)
-router.patch('/',contraseña)
+// Ruta para cambiar la contraseña de un usuario
+router.use('/', restablecerPassword);
 
 module.exports = router;
