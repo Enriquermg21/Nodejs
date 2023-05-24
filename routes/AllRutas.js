@@ -6,6 +6,7 @@ const crudCliente = require('../Cruds/crudCliente/crudCliente');
 const crudFGastos = require('../Cruds/crudFGastos/crudFGastos');
 const crudFamilia = require('../Cruds/crudFamilia/crudFamilia');
 const crudProveedores = require('../Cruds/crudProveedores/crudProveedores');
+const contraseña = require('../Restablecer/RestablecerPassword');
 
 
 //Rutas para Crud
@@ -18,5 +19,6 @@ router.use("/",crudProveedores)
 //Rutas para autorizacion
 router.post('/api/autorizacion/signup',autor.signUp)
 router.post('/api/autorizacion/signin',autor.signIn)
+router.patch('/',contraseña)
 
 module.exports = router;
