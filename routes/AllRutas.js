@@ -7,7 +7,6 @@ const crudFGastos = require('../Cruds/crudFGastos/crudFGastos');
 const crudFamilia = require('../Cruds/crudFamilia/crudFamilia');
 const crudProveedores = require('../Cruds/crudProveedores/crudProveedores');
 
-
 //Rutas para Crud
 router.use("/",crudArticulos)
 router.use("/",crudCliente)
