@@ -1,6 +1,57 @@
 const express = require('express');
 const router = express.Router();
 const Cliente = require('../../modelos/clientes');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+router.get('/api/clientes/pdf/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = req.query.filePath || './ruta/por/defecto/';
+
+  try {
+    const clientes = await Cliente.find();
+
+    const doc = new PDFDocument();
+
+    doc.font('Helvetica-Bold').fontSize(20).text('Clientes', { align: 'center' }).moveDown();
+
+    let numeroCliente = 1;
+
+    clientes.forEach(cliente => {
+      doc.font('Helvetica-Bold').fontSize(12).text(`Cliente #${numeroCliente}`, { underline: true }).moveDown();
+
+      doc.font('Helvetica').fontSize(12)
+        .text(`Razón Social: ${cliente.Razon_social}`)
+        .text(`Personal de Contacto: ${cliente.Personal_de_contacto}`)
+        .text(`Dirección: ${cliente.Direccion}`)
+        .text(`Ciudad: ${cliente.Ciudad}`)
+        .text(`Provincia: ${cliente.Provincia}`)
+        .text(`Código Postal: ${cliente.Codigo_Postal}`)
+        .text(`Teléfono: ${cliente.Telefono}`)
+        .text(`Móvil: ${cliente.Movil}`)
+        .text(`Descuento: ${cliente.Descuento}`)
+        .text(`Recargo Equivalencia: ${cliente.recargo_Eq}`)
+        .text(`Observaciones: ${cliente.Observaciones}`)
+        .text(`Foto: ${cliente.Foto}`)
+        .text(`Correo Electrónico: ${cliente.Correo_E}`)
+        .text(`Login: ${cliente.login}`)
+        .text(`Password: ${cliente.Password}`)
+        .text(`Tarifa: ${cliente.Tarifa}`)
+        .moveDown();
+
+      numeroCliente++;
+    });
+
+    const timestamp = new Date().getTime();
+    const outputFilePath = `${filePath}${timestamp}_${filename}`;
+    doc.pipe(fs.createWriteStream(outputFilePath));
+    doc.end();
+
+    res.json({ message: 'PDF generado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar el PDF' });
+  }
+});
 
 // CREATE
 router.post('/api/clientes', async (req, res) => {

@@ -27,19 +27,19 @@ const articulosSchema = new mongoose.Schema({
       Tarifa_4: {
         type: String
       },
-      nº_Decimales: {
+      nºDecimales: {
         type: String
       },
-      Iva: {
+      iva: {
         type: String
       },
       stock: {
         type: String
       },
-      Minimo: {
+      minimo: {
         type: String
       },
-      Foto: {
+      foto: {
         type: String
       },
       Observaciones: {

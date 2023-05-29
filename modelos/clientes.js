@@ -24,7 +24,7 @@ const clienteSchema = new mongoose.Schema({
       Movil: {
         type: String
       },
-      Descuento: {
+      descuento: {
         type: String
       },
       recargo_Eq: {
@@ -39,7 +39,7 @@ const clienteSchema = new mongoose.Schema({
       Correo_E: {
         type: String
       },
-      Login: {
+      login: {
         type: String
       },
       Password: {
