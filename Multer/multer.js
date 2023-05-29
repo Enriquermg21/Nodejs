@@ -5,7 +5,7 @@ const router = express.Router();
 const current_dir = dirname(__filename);
 const multerUpload = multer({
     
-    storage: multer.diskStorage({
+storage: multer.diskStorage({
         destination: join(current_dir,'../Uploads'),
         filename: (req,file,cb)=>{
             const extension = extname(file.originalname);
@@ -26,9 +26,9 @@ router.post('/api/upload',multerUpload.single('file'),async (req, res) => {
     } catch (err) {
       res.status(500).json({ error: 'Error al obtener el archivo' });
     }
-  });
+});
 
 router.use( '/api/download',express.static(join(current_dir,'../Uploads')))
     
 
-  module.exports = router;
+module.exports = router;
