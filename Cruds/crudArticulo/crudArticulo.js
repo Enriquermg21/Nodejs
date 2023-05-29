@@ -1,6 +1,56 @@
 const express = require('express');
 const router = express.Router();
 const Articulo = require('../../modelos/articulos');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+router.get('/api/articulos/pdf/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = req.query.filePath || './ruta/por/defecto/';
+
+  try {
+    const articulos = await Articulo.find();
+
+    const doc = new PDFDocument();
+
+    doc.font('Helvetica-Bold').fontSize(20).text('Articulos', { align: 'center' }).moveDown();
+
+    articulos.forEach((articulo, index) => {
+      const numeroArticulo = index + 1;
+      doc.font('Helvetica-Bold').fontSize(12).text(`Artículo #${numeroArticulo}`, { underline: true }).moveDown();
+
+      // Detalles del artículo
+      doc.font('Helvetica').fontSize(12)
+        .text(`Código: ${articulo.Codigo}`)
+        .text(`Concepto: ${articulo.Concepto}`)
+        .text(`Familia: ${articulo.Familia}`)
+        .text(`Proveedor: ${articulo.Proveedor}`)
+        .text(`Precio Base: ${articulo.Precio_Base}`)
+        .text(`Tarifa 1: ${articulo.Tarifa_1}`)
+        .text(`Tarifa 2: ${articulo.Tarifa_2}`)
+        .text(`Tarifa 3: ${articulo.Tarifa_3}`)
+        .text(`Tarifa 4: ${articulo.Tarifa_4}`)
+        .text(`Nº Decimales: ${articulo['nºDecimales']}`)
+        .text(`IVA: ${articulo.iva}`)
+        .text(`Stock: ${articulo.stock}`)
+        .text(`Mínimo: ${articulo.minimo}`)
+        .text(`Foto: ${articulo.foto}`)
+        .text(`Observaciones: ${articulo.Observaciones}`)
+        .moveDown();
+    });
+
+    const timestamp = new Date().getTime();
+    const outputFilePath = `${filePath}${timestamp}_${filename}`;
+    doc.pipe(fs.createWriteStream(outputFilePath));
+    doc.end();
+
+    res.json({ message: 'PDF generado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar el PDF' });
+  }
+});
+
+
 
 // CREATE
 router.post('/api/articulos', async (req, res) => {
