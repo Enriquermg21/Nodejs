@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const Articulos = require('../../modelos/articulos');
 const Articulo = require('../../modelos/articulos');
 
 // CREATE
@@ -35,7 +34,7 @@ router.post('/api/articulos', async (req, res) => {
 router.get('/api/articulos', async (req, res) => {
   
   try {
-    const articulosQuery = Articulos.find();
+    const articulosQuery = Articulo.find();
     const articulos = await articulosQuery.exec();
     res.json(articulos);
   } catch (err) {
