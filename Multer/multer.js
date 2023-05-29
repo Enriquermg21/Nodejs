@@ -1,9 +1,8 @@
 const express = require('express');
 const multer = require ("multer");
-const dirname = require("path");
-const fileURLToPath = require("url");
+const { join, dirname } = require("path");
 const router = express.Router();
-const current_dir = dirname(fileURLToPath(import.meta.url));
+const current_dir = dirname(__filename);
 const multerUpload = multer({
     dest: join(current_dir,'../Uploads'),
     limits: {
@@ -11,7 +10,7 @@ const multerUpload = multer({
       },
 });
 
-router.post('/api/upload',multerUpload.fields('file'),async (req, res) => {
+router.post('/api/upload',multerUpload.single('file'),async (req, res) => {
   
     try {
         console.log(req.file);
@@ -20,3 +19,5 @@ router.post('/api/upload',multerUpload.fields('file'),async (req, res) => {
       res.status(500).json({ error: 'Error al obtener el archivo' });
     }
   });
+
+  module.exports = router;
