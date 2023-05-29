@@ -1,6 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const Familia = require('../../modelos/familia');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+router.get('/api/familias/pdf/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = req.query.filePath || './ruta/por/defecto/';
+
+  try {
+    const familias = await Familia.find();
+
+    const doc = new PDFDocument();
+
+    doc.font('Helvetica-Bold').fontSize(20).text('Familias', { align: 'center' }).moveDown();
+
+    let numeroFamilia = 1;
+
+    familias.forEach(familia => {
+      doc.font('Helvetica-Bold').fontSize(12).text(`Familia #${numeroFamilia}`, { underline: true }).moveDown();
+
+      doc.font('Helvetica').fontSize(12)
+        .text(`Nombre: ${familia.Nombre}`)
+        .moveDown();
+
+      numeroFamilia++;
+    });
+
+    const timestamp = new Date().getTime();
+    const outputFilePath = `${filePath}${timestamp}_${filename}`;
+    doc.pipe(fs.createWriteStream(outputFilePath));
+    doc.end();
+
+    res.json({ message: 'PDF generado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar el PDF' });
+  }
+});
 
 // CREATE
 router.post('/api/familias', async (req, res) => {

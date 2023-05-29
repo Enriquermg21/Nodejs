@@ -1,6 +1,68 @@
 const express = require('express');
 const router = express.Router();
 const FGastos = require('../../modelos/f_gastos');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+router.get('/api/facturas/pdf/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = req.query.filePath || './ruta/por/defecto/';
+
+  try {
+    const facturas = await FGastos.find();
+
+    const doc = new PDFDocument();
+
+    doc.font('Helvetica-Bold').fontSize(20).text('Facturas', { align: 'center' }).moveDown();
+
+    let numeroFactura = 1;
+
+    facturas.forEach(factura => {
+      doc.font('Helvetica-Bold').fontSize(12).text(`Factura #${numeroFactura}`, { underline: true }).moveDown();
+
+      doc.font('Helvetica').fontSize(12)
+        .text(`Número: ${factura.Numero}`)
+        .text(`Fecha: ${factura.Fecha}`)
+        .text(`Proveedor: ${factura.Provedoor}`)
+        .text(`CIF: ${factura.Cif}`)
+        .text(`Base 1: ${factura.base_1}`)
+        .text(`IVA 1: ${factura.iva_1}`)
+        .text(`RE 1: ${factura.re_1}`)
+        .text(`Base 2: ${factura.base_2}`)
+        .text(`IVA 2: ${factura.iva_2}`)
+        .text(`RE 2: ${factura.re_2}`)
+        .text(`Base 3: ${factura.base_3}`)
+        .text(`IVA 3: ${factura.iva_3}`)
+        .text(`RE 3: ${factura.re_3}`)
+        .text(`Base 4: ${factura.base_4}`)
+        .text(`IVA 4: ${factura.iva_4}`)
+        .text(`RE 4: ${factura.re_4}`)
+        .text(`Base 5: ${factura.base_5}`)
+        .text(`IVA 5: ${factura.iva_5}`)
+        .text(`RE 5: ${factura.re_5}`)
+        .text(`Base Total: ${factura.base_Total}`)
+        .text(`IVA Total: ${factura.iva_Total}`)
+        .text(`REQ Total: ${factura.req_Total}`)
+        .text(`Total Factura: ${factura.Total_Factura}`)
+        .text(`Nº Factura: ${factura['Nº_Factura']}`)
+        .text(`Apartado: ${factura.Apartado}`)
+        .text(`Deducible: ${factura.Deducible}`)
+        .text(`Pagado: ${factura.Pagado}`)
+        .moveDown();
+
+      numeroFactura++;
+    });
+
+    const timestamp = new Date().getTime();
+    const outputFilePath = `${filePath}${timestamp}_${filename}`;
+    doc.pipe(fs.createWriteStream(outputFilePath));
+    doc.end();
+
+    res.json({ message: 'PDF generado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar el PDF' });
+  }
+});
 
 // CREATE
 router.post('/api/gastos', async (req, res) => {

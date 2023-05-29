@@ -1,6 +1,57 @@
 const express = require('express');
 const router = express.Router();
 const Proveedor = require('../../modelos/proveedores');
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+
+router.get('/api/proveedores/pdf/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const filePath = req.query.filePath || './ruta/por/defecto/';
+
+  try {
+    const proveedores = await Proveedor.find();
+
+    const doc = new PDFDocument();
+
+    doc.font('Helvetica-Bold').fontSize(20).text('Proveedores', { align: 'center' }).moveDown();
+
+    let numeroProveedor = 1;
+
+    proveedores.forEach(proveedor => {
+      doc.font('Helvetica-Bold').fontSize(12).text(`Proveedor #${numeroProveedor}`, { underline: true }).moveDown();
+
+      doc.font('Helvetica').fontSize(12)
+        .text(`Razón Social: ${proveedor.Razon_social}`)
+        .text(`Personal de Contacto: ${proveedor.Personal_de_contacto}`)
+        .text(`Dirección: ${proveedor.Direccion}`)
+        .text(`Ciudad: ${proveedor.Ciudad}`)
+        .text(`Provincia: ${proveedor.Provincia}`)
+        .text(`Código Postal: ${proveedor.Codigo_Postal}`)
+        .text(`Teléfono: ${proveedor.Telefono}`)
+        .text(`Móvil: ${proveedor.Movil}`)
+        .text(`Descuento: ${proveedor.descuento}`)
+        .text(`Recargo Equivalencia: ${proveedor.recargo_Eq}`)
+        .text(`Observaciones: ${proveedor.Observaciones}`)
+        .text(`Foto: ${proveedor.Foto}`)
+        .text(`Correo Electrónico: ${proveedor.Correo_E}`)
+        .text(`Login: ${proveedor.login}`)
+        .text(`Password: ${proveedor.Password}`)
+        .text(`Página Web: ${proveedor.Pag_Web}`)
+        .moveDown();
+
+      numeroProveedor++;
+    });
+
+    const timestamp = new Date().getTime();
+    const outputFilePath = `${filePath}${timestamp}_${filename}`;
+    doc.pipe(fs.createWriteStream(outputFilePath));
+    doc.end();
+
+    res.json({ message: 'PDF generado correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar el PDF' });
+  }
+});
 
 // CREATE
 router.post('/api/proveedores', async (req, res) => {
