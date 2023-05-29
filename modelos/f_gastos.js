@@ -12,58 +12,58 @@ const facGastosSchema = new mongoose.Schema({
       Cif: {
         type: String
       },
-      Base_1: {
+      base_1: {
         type: String
       },
-      Iva_1: {
+      iva_1: {
         type: String
       },
-      Re_1: {
+      re_1: {
         type: String
       },
-      Base_2: {
+      base_2: {
         type: String
       },
-      Iva_2: {
+      iva_2: {
         type: String
       },
-      Re_2: {
+      re_2: {
         type: String
       },
-      Base_3: {
+      base_3: {
         type: String
       },
-      Iva_3: {
+      iva_3: {
         type: String
       },
-      Re_3: {
+      re_3: {
         type: String
       },
-      Base_4: {
+      base_4: {
         type: String
       },
-      Iva_4: {
+      iva_4: {
         type: String
       },
-      Re_4: {
+      re_4: {
         type: String
       },
-      Base_5: {
+      base_5: {
         type: String
       },
-      Iva_5: {
+      iva_5: {
         type: String
       },
-      Re_5: {
+      re_5: {
         type: String
       },
-      Base_Total: {
+      base_Total: {
         type: String
       },
-      Iva_Total: {
+      iva_Total: {
         type: String
       },
-      Req_Total: {
+      req_Total: {
         type: String
       },
       Total_Factura: {
