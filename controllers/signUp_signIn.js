@@ -61,6 +61,10 @@ module.exports = {
 
     buscarUsuario.intentosFallidos = 0;
     await buscarUsuario.save();
+
+    const token = jwt.sign({ id: buscarUsuario._id }, "instituto-api", {
+      expiresIn: 86400
+    });
     res.json({token})
   },
 
