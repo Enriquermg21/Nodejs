@@ -7,6 +7,7 @@ const crudFGastos = require('../Cruds/crudFGastos/crudFGastos');
 const crudFamilia = require('../Cruds/crudFamilia/crudFamilia');
 const crudProveedores = require('../Cruds/crudProveedores/crudProveedores');
 const restablecerPassword = require('../Restablecer/RestablecerPassword');
+const multer = require('../Multer/multer');
 
 // Rutas para CRUD
 router.use("/", crudArticulos);
@@ -21,5 +22,7 @@ router.post('/api/autorizacion/signin', autor.signIn);
 
 // Ruta para cambiar la contraseña de un usuario
 router.use('/', restablecerPassword);
+// Ruta para el multer
+router.use('/', multer);
 
 module.exports = router;
