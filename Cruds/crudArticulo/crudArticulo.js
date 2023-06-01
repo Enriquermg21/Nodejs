@@ -1,149 +1,224 @@
 const express = require('express');
-const router = express.Router();
 const Articulo = require('../../modelos/articulos');
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
+const multer = require ("multer");
+const { join, dirname, extname } = require("path");
+const router = express.Router();
+const current_dir = dirname(__filename);
+const multerUpload = multer({
+    
+storage: multer.diskStorage({
+        destination: join(current_dir,'../Uploads'),
+        filename: (req,file,cb)=>{
+            const extension = extname(file.originalname);
+            const filename = file.originalname.split(extension)[0];
 
-router.get('/api/articulos/pdf/:filename', async (req, res) => {
-  const { filename } = req.params;
-  const filePath = req.query.filePath || './ruta/por/defecto/';
-
+            cb(null,`${filename}-${Date.now()}${extension}`);
+        },
+    }),
+    limits: {
+        fileSize: 10000000000, // Tamaño máximo del archivo en bytes (10 MB en este caso)
+      },
+});
+// Crear un nuevo artículo
+router.post('/api/CrearArti', multerUpload.single('file'), async (req, res, next) => {
   try {
-    const articulos = await Articulo.find();
+    const { titulo, contenido, publicado, likes, comentarios } = req.body;
 
-    const doc = new PDFDocument();
-
-    doc.font('Helvetica-Bold').fontSize(20).text('Articulos', { align: 'center' }).moveDown();
-
-    articulos.forEach((articulo, index) => {
-      const numeroArticulo = index + 1;
-      doc.font('Helvetica-Bold').fontSize(12).text(`Artículo #${numeroArticulo}`, { underline: true }).moveDown();
-
-      // Detalles del artículo
-      doc.font('Helvetica').fontSize(12)
-        .text(`Código: ${articulo.Codigo}`)
-        .text(`Concepto: ${articulo.Concepto}`)
-        .text(`Familia: ${articulo.Familia}`)
-        .text(`Proveedor: ${articulo.Proveedor}`)
-        .text(`Precio Base: ${articulo.Precio_Base}`)
-        .text(`Tarifa 1: ${articulo.Tarifa_1}`)
-        .text(`Tarifa 2: ${articulo.Tarifa_2}`)
-        .text(`Tarifa 3: ${articulo.Tarifa_3}`)
-        .text(`Tarifa 4: ${articulo.Tarifa_4}`)
-        .text(`Nº Decimales: ${articulo['nºDecimales']}`)
-        .text(`IVA: ${articulo.iva}`)
-        .text(`Stock: ${articulo.stock}`)
-        .text(`Mínimo: ${articulo.minimo}`)
-        .text(`Foto: ${articulo.foto}`)
-        .text(`Observaciones: ${articulo.Observaciones}`)
-        .moveDown();
+    const articulo = await Articulo.create({
+      titulo,
+      contenido,
+      publicado,
+      imagen: {
+        url: req.file.path,
+        public_id: req.file.filename
+      },
+      likes,
+      comentarios
     });
 
-    const timestamp = new Date().getTime();
-    const outputFilePath = `${filePath}${timestamp}_${filename}`;
-    doc.pipe(fs.createWriteStream(outputFilePath));
-    doc.end();
-
-    res.json({ message: 'PDF generado correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: 'Error al generar el PDF' });
-  }
-});
-
-
-
-// CREATE
-router.post('/api/articulos', async (req, res) => {
-  try {
-    const articulo = new Articulo({
-      Codigo: req.body.Codigo,
-      Concepto: req.body.Concepto,
-      Familia: req.body.Familia,
-      Proveedor: req.body.Proveedor,
-      Precio_Base: req.body.Precio_Base,
-      Tarifa_1: req.body.Tarifa_1,
-      Tarifa_2: req.body.Tarifa_2,
-      Tarifa_3: req.body.Tarifa_3,
-      Tarifa_4: req.body.Tarifa_4,
-      "nº_Decimales": req.body["nº_Decimales"],
-      Iva: req.body.Iva,
-      stock: req.body.stock,
-      Minimo: req.body.Minimo,
-      Foto: req.body.Foto,
-      Observaciones: req.body.Observaciones
+    res.status(201).json({
+      success: true,
+      articulo
     });
-
-    const newArticulo = await articulo.save();
-    res.status(201).json(newArticulo);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 });
 
-// READ all
-router.get('/api/articulos', async (req, res) => {
-  
+// Obtener todos los artículos
+router.get('/api/MostrarArtis', async (req, res, next) => {
   try {
-    const articulosQuery = Articulo.find();
-    const articulos = await articulosQuery.exec();
-    res.json(articulos);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al obtener los artículos' });
+    const articulos = await Articulo.find().sort({ createdAt: -1 }).populate('publicado', 'name');
+    res.status(200).json({
+      success: true,
+      articulos
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
-// READ one
-router.get('/api/articulos/:id', async (req, res) => {
+// Obtener un artículo por su ID
+router.get('/api/MostrarArti/:id', async (req, res, next) => {
   try {
-    const articulo = await Articulo.findById(req.params.id);
+    const articulo = await Articulo.findById(req.params.id).populate('comentarios.publicadoPor', 'name');
     if (!articulo) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
     }
-    res.json(articulo);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al obtener el artículo' });
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
-// UPDATE
-router.put('/api/articulos/:id', async (req, res) => {
+// Actualizar un artículo
+router.put('/api/ActualizarArti/:id', multerUpload.single('imagen'), async (req, res, next) => {
   try {
-    const articulo = await Articulo.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!articulo) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
-    }
-    res.json(articulo);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al actualizar el artículo' });
-  }
-});
-//PATCH
-router.patch('/api/articulos/:id', async (req, res) => {
-  try {
-    const patch = {
-      $set: req.body // Utiliza el cuerpo de la solicitud como el parche
+    const { titulo, contenido, publicado } = req.body;
+    const updateData = {
+      titulo,
+      contenido,
+      publicado
     };
 
-    const articulo = await Articulo.findByIdAndUpdate(req.params.id, patch, { new: true });
-    if (!articulo) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
+    if (req.file) {
+      updateData.imagen = {
+        url: req.file.path,
+        public_id: req.file.filename
+      };
     }
-    res.json(articulo);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al actualizar el artículo' });
+
+    const articulo = await Articulo.findByIdAndUpdate(req.params.id, updateData, { new: true });
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
-// DELETE
-router.delete('/api/articulos/:id', async (req, res) => {
+// Eliminar un artículo
+router.delete('/api/BorrarArti/:id', async (req, res, next) => {
   try {
-    const result = await Articulo.findByIdAndDelete(req.params.id);
-    if (!result) {
-      return res.status(404).json({ error: 'Artículo no encontrado' });
+    const articulo = await Articulo.findByIdAndDelete(req.params.id);
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
     }
-    res.json({ message: 'Artículo eliminado correctamente' });
-  } catch (err) {
-    res.status(500).json({ error: 'Error al eliminar el artículo' });
+    res.status(200).json({
+      success: true,
+      message: 'Artículo eliminado'
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Agregar un comentario al artículo
+router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
+  try {
+    const { comentario } = req.body;
+    const articulo = await Articulo.findById(req.params.id);
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    articulo.comentarios.push({
+      texto: comentario,
+      publicadoPor: req.user._id
+    });
+
+    await articulo.save();
+
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Darle like a un artículo
+router.put('/api/articulos/:id/like', async (req, res, next) => {
+  try {
+    const articulo = await Articulo.findById(req.params.id);
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    if (articulo.likes.includes(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ya le has dado like a este artículo'
+      });
+    }
+
+    articulo.likes.push(req.user._id);
+    await articulo.save();
+
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Quitarle like a un artículo
+router.put('/api/articulos/:id/unlike', async (req, res, next) => {
+  try {
+    const articulo = await Articulo.findById(req.params.id);
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    if (!articulo.likes.includes(req.user._id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'No le has dado like a este artículo'
+      });
+    }
+
+    articulo.likes.pull(req.user._id);
+    await articulo.save();
+
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
   }
 });
 
