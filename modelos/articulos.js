@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
 const Articulos = new mongoose.Schema(
     {
-        title: {
+        titulo: {
             type: String,
-            required: [true, "title is required"],
+            required: [true, "titulo requerido"],
         },
-        content: {
+        contenido: {
             type: String,
-            required: [true, "content is required"],
+            required: [true, "contenido requerido"],
         },
-        postedBy: {
+        publicado: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "usuarios",
         },
-        image: {
+        imagen: {
             url: String,
             public_id: String,
         },
         likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "usuarios" }],
-        comments: [
+        comentarios: [
             {
                 text: String,
                 created: { type: Date, default: Date.now },
