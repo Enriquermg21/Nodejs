@@ -7,7 +7,7 @@ const app = express();
 
 
 //Creacion y escucha de la base de datos
-const puerto = process.env.PUERTO || 3004;
+const puerto = process.env.PUERTO || 3005;
 app.listen(puerto,() => console.log('El servidor esta ecuchando el puerto '+ puerto));
 initdb();
 

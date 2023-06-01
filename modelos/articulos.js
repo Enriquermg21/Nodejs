@@ -1,51 +1,35 @@
 const mongoose = require('mongoose');
-const articulosSchema = new mongoose.Schema({
-      Codigo: {
-        type: String
-      },
-      Concepto: {
-        type: String
-      },
-      Familia: {
-        type: String
-      },
-      Proveedor: {
-        type: String
-      },
-      Precio_Base: {
-        type: String
-      },
-      Tarifa_1: {
-        type: String
-      },
-      Tarifa_2: {
-        type: String
-      },
-      Tarifa_3: {
-        type: String
-      },
-      Tarifa_4: {
-        type: String
-      },
-      nºDecimales: {
-        type: String
-      },
-      iva: {
-        type: String
-      },
-      stock: {
-        type: String
-      },
-      minimo: {
-        type: String
-      },
-      foto: {
-        type: String
-      },
-      Observaciones: {
-        type: String
-      },
-      
-    },{ versionKey: false });
-const Articulos = mongoose.model('Articulos', articulosSchema);
-module.exports= Articulos;
+const Articulos = new mongoose.Schema(
+    {
+        title: {
+            type: String,
+            required: [true, "title is required"],
+        },
+        content: {
+            type: String,
+            required: [true, "content is required"],
+        },
+        postedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "usuarios",
+        },
+        image: {
+            url: String,
+            public_id: String,
+        },
+        likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "usuarios" }],
+        comments: [
+            {
+                text: String,
+                created: { type: Date, default: Date.now },
+                postedBy: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "usuarios",
+                },
+            },
+        ],
+    },
+    { timestamps: true }
+);
+
+module.exports = mongoose.model('Articulos', Articulos);
