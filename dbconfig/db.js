@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const db_uri = 'mongodb+srv://enriquermg21:5zcLF6CKdi4OdqEK@cluster0.qu92wqz.mongodb.net/Empresa'
+const db_uri = 'mongodb+srv://enriquermg21:5zcLF6CKdi4OdqEK@cluster0.qu92wqz.mongodb.net/Blog'
 
 module.exports = ()=>{
     const connect = ()=>{
