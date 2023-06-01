@@ -1,10 +1,10 @@
 {
-  "name": "backend",
+  "name": "blog",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon backend/app.js"
+    "start": "nodemon blog/app.js"
   },
   "keywords": [],
   "author": "",
