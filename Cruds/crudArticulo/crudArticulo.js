@@ -44,9 +44,9 @@ router.post('/api/CrearArti', multerUpload.single('imagen'), async (req, res, ne
 });
 
 // Obtener todos los artículos
-router.get('/api/MostrarArtis', async (req, res, next) => {
+router.get('/api/MostrarArti', async (req, res, next) => {
   try {
-    const articulos = await Articulo.find().sort({ createdAt: -1 }).populate('publicado', 'name');
+    const articulos = await Articulo.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       articulos
@@ -59,7 +59,7 @@ router.get('/api/MostrarArtis', async (req, res, next) => {
 // Obtener un artículo por su ID
 router.get('/api/MostrarArti/:id', async (req, res, next) => {
   try {
-    const articulo = await Articulo.findById(req.params.id).populate('comentarios.publicadoPor', 'name');
+    const articulo = await Articulo.findById(req.params.id);
     if (!articulo) {
       return res.status(404).json({
         success: false,
