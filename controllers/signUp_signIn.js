@@ -35,14 +35,14 @@ module.exports = {
     res.json({token});
   },
   signIn: async (req, res) => {
-    const { email, password } = req.body;
-    const buscarUsuario = await Usuario.findOne({ Email: email });
+    const { Email, Password } = req.body;
+    const buscarUsuario = await Usuario.findOne({ Email: Email });
 
     if (!buscarUsuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const compararContraseña = await Usuario.compararContraseña(password, buscarUsuario.Password);
+    const compararContraseña = await Usuario.compararContraseña(Password, buscarUsuario.Password);
     
     if (!compararContraseña) {
       
