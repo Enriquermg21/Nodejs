@@ -23,8 +23,6 @@ const userSchema = new mongoose.Schema({
 
     userSchema.statics.contraseñaEncriptada = async (Password) => {
       const salt = await bcrypt.genSalt(10);
-      console.log(salt);
-      console.log(Password);
       return await bcrypt.hash(Password, salt);
     }
     userSchema.statics.compararContraseña = async (Password,contraseñaEncriptada) =>{
