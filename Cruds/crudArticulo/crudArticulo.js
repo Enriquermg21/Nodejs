@@ -168,12 +168,25 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, n
     const articulo = await Articulo.findById(articuloId);
     const comentario = articulo.comentarios.id(comentarioId);
     const userId = articulo.userId;
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    if (!comentario) {
+      return res.status(404).json({
+        success: false,
+        message: 'El comentario no existe'
+      });
+    }
     // Verificar si el usuario es el propietario del comentario o si es administrador
+
     if (userId === comentario.usuario || isAdmin) {
-      // Eliminar el comentario
-      comentario.remove();
-      await articulo.save();
       
+      await articulo.updateOne({ $pull: { comentarios: comentario } });
       res.status(200).json({ success: true, message: 'Comentario eliminado correctamente.' });
     } else {
       // El usuario no tiene permisos para eliminar el comentario
