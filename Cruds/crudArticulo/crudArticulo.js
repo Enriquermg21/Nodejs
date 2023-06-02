@@ -143,7 +143,8 @@ router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
     }
     const user = articulo.userId;
     articulo.comentarios.push({
-      text: comentario
+      text: comentario,
+      publicadoPor: user
     });
 
     await articulo.save();
@@ -162,15 +163,11 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, n
   try {
     const articuloId = req.params.id;
     const comentarioId = req.params.comentarioId;
-    const userId = req.user.id; // Obtener el ID del usuario autenticado
-    
-    // Verificar si el usuario es administrador
-    const isAdmin = req.user.admin; // Asume que la propiedad 'admin' indica si el usuario es administrador
     
     // Buscar el artículo por ID y el comentario dentro del artículo
     const articulo = await Articulo.findById(articuloId);
     const comentario = articulo.comentarios.id(comentarioId);
-
+    const userId = articulo.userId;
     // Verificar si el usuario es el propietario del comentario o si es administrador
     if (userId === comentario.usuario || isAdmin) {
       // Eliminar el comentario
