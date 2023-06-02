@@ -143,7 +143,7 @@ router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
     }
     const user = articulo.userId;
     articulo.comentarios.push({
-      texto: comentario
+      text: comentario
     });
 
     await articulo.save();
