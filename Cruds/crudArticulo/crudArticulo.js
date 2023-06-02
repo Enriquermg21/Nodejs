@@ -20,9 +20,9 @@ storage: multer.diskStorage({
       },
 });
 // Crear un nuevo artículo
-router.post('/api/CrearArti', multerUpload.single('file'), async (req, res, next) => {
+router.post('/api/CrearArti', multerUpload.single('imagen'), async (req, res, next) => {
   try {
-    const { titulo, contenido, publicado, likes, comentarios } = req.body;
+    const { titulo, contenido, publicado} = req.body;
 
     const articulo = await Articulo.create({
       titulo,
@@ -32,8 +32,6 @@ router.post('/api/CrearArti', multerUpload.single('file'), async (req, res, next
         url: req.file.path,
         public_id: req.file.filename
       },
-      likes,
-      comentarios
     });
 
     res.status(201).json({
