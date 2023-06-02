@@ -44,7 +44,7 @@ router.post('/api/CrearArti', multerUpload.single('imagen'), async (req, res, ne
 });
 
 // Obtener todos los artículos
-router.get('/api/MostrarArtis', async (req, res, next) => {
+router.get('/api/MostrarArti', async (req, res, next) => {
   try {
     const articulos = await Articulo.find().sort({ createdAt: -1 });
     res.status(200).json({
@@ -141,9 +141,10 @@ router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
         message: 'El artículo no existe'
       });
     }
-
+    const user = articulo.userId;
     articulo.comentarios.push({
       text: comentario
+
     });
 
     await articulo.save();
@@ -157,8 +158,39 @@ router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
   }
 });
 
+// Eliminar un comentario al artículo
+router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, next) => {
+  try {
+    const articuloId = req.params.id;
+    const comentarioId = req.params.comentarioId;
+    const userId = req.user.id; // Obtener el ID del usuario autenticado
+    
+    // Verificar si el usuario es administrador
+    const isAdmin = req.user.admin; // Asume que la propiedad 'admin' indica si el usuario es administrador
+    
+    // Buscar el artículo por ID y el comentario dentro del artículo
+    const articulo = await Articulo.findById(articuloId);
+    const comentario = articulo.comentarios.id(comentarioId);
+
+    // Verificar si el usuario es el propietario del comentario o si es administrador
+    if (userId === comentario.usuario || isAdmin) {
+      // Eliminar el comentario
+      comentario.remove();
+      await articulo.save();
+      
+      res.status(200).json({ success: true, message: 'Comentario eliminado correctamente.' });
+    } else {
+      // El usuario no tiene permisos para eliminar el comentario
+      res.status(403).json({ success: false, message: 'No tienes permisos para eliminar este comentario.' });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Darle like a un artículo
 router.put('/api/articulos/:id/like', async (req, res, next) => {
+
   try {
     const articulo = await Articulo.findById(req.params.id);
 
