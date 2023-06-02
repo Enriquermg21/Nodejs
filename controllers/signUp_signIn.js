@@ -19,6 +19,7 @@ module.exports = {
       Password: await Usuario.contraseñaEncriptada(Password),
       Roles
     })
+    console.log(nuevoUsuario)
     if(Roles){
       const buscaRole = await Role.find({Rol: {$in: Roles}})
       nuevoUsuario.Roles = buscaRole.map(role => role._id)
