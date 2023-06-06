@@ -1,4 +1,5 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const Articulo = require('../../modelos/articulos');
 const multer = require("multer");
 const { join, dirname, extname } = require("path");
@@ -21,7 +22,7 @@ const multerUpload = multer({
 
 // Importar funciones de autenticación
 const { verificarSesion, verificarAdmin } = require('../../middleware/auth');
-const { verifyToken } = require('../../middleware/verifyIs');
+const usuarios = require('../../modelos/usuarios');
 
 // Crear un nuevo artículo
 router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), async (req, res, next) => {
@@ -36,6 +37,11 @@ router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), as
         url: req.file.path,
         public_id: req.file.filename
       },
+    });
+
+    res.status(201).json({
+      success: true,
+      articulo
     });
   } catch (error) {
     next(error);
@@ -131,19 +137,27 @@ router.delete('/api/BorrarArti/:id', verificarSesion, verificarAdmin, async (req
 // Agregar un comentario al artículo
 router.post('/api/articulos/:id/comentarios', verificarSesion, async (req, res, next) => {
   try {
+    let token = req.headers['token'] || req.headers['authorization'];
+      if (!token) return res.status(403).json({message: "No se ha recibido ningun token"})
+      if(token.startsWith('Bearer ')){
+        token = token.slice(7,token.length);
+      }
+      
+    const decoded = jwt.verify(token, 'instituto-api');
+    const usuario = await usuarios.findById(decoded.id);
+    
     const { comentario } = req.body;
     const articulo = await Articulo.findById(req.params.id);
-
+    
     if (!articulo) {
       return res.status(404).json({
         success: false,
         message: 'El artículo no existe'
       });
     }
-    const user = articulo.userId;
     articulo.comentarios.push({
       text: comentario,
-      publicadoPor: user
+      postedBy: usuario._id
     });
 
     await articulo.save();
@@ -159,15 +173,23 @@ router.post('/api/articulos/:id/comentarios', verificarSesion, async (req, res, 
 
 // Eliminar un comentario al artículo
 router.delete('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, async (req, res, next) => {
+  
   try {
+    let token = req.headers['token'] || req.headers['authorization'];
+      if (!token) return res.status(403).json({message: "No se ha recibido ningun token"})
+      if(token.startsWith('Bearer ')){
+        token = token.slice(7,token.length);
+      }
+      
+    const decoded = jwt.verify(token, 'instituto-api');
+    const usuario = await usuarios.findById(decoded.id);
+
     const articuloId = req.params.id;
     const comentarioId = req.params.comentarioId;
 
     // Buscar el artículo por ID y el comentario dentro del artículo
     const articulo = await Articulo.findById(articuloId);
     const comentario = articulo.comentarios.id(comentarioId);
-    const userId = articulo.userId;
-
     if (!articulo) {
       return res.status(404).json({
         success: false,
@@ -181,9 +203,13 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, a
         message: 'El comentario no existe'
       });
     }
+
+    const usu = await usuarios.findById(decoded.id).populate('Roles');
+    const isAdmin = usu.Roles.some(Rol => Rol.Rol === 'Admin');
+
     // Verificar si el usuario es el propietario del comentario o si es administrador
-    if (userId === comentario.usuario || isAdmin) {
-      await articulo.updateOne({ $pull: { comentarios: comentario } });
+    if (usuario._id === comentario.postedBy || usuario.Roles[0] === isAdmin) {
+      //await articulo.updateOne({ $pull: { comentarios: comentario } });
       res.status(200).json({ success: true, message: 'Comentario eliminado correctamente.' });
     } else {
       // El usuario no tiene permisos para eliminar el comentario

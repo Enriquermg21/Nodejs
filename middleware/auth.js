@@ -20,7 +20,6 @@ const verificarSesion = async (req, res , next) => {
       if (!usuario) {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
-      res.status(403).json({message: "Validado y Articulo creado"})
       next()
     } catch (error) {
       return res.status(403).json({message: "No autorizado"})
@@ -28,7 +27,7 @@ const verificarSesion = async (req, res , next) => {
   };
   
   // Verificar si el usuario es administrador
-  const verificarAdmin = async (req, res) => {
+  const verificarAdmin = async (req, res,next) => {
     const token = req.headers.authorization;
   
     if (!token) {
@@ -36,6 +35,11 @@ const verificarSesion = async (req, res , next) => {
     }
   
     try {
+      let token = req.headers['token'] || req.headers['authorization'];
+      if (!token) return res.status(403).json({message: "No se ha recibido ningun token"})
+      if(token.startsWith('Bearer ')){
+        token = token.slice(7,token.length);
+      }
       const decoded = jwt.verify(token, 'instituto-api');
       const usuario = await Usuario.findById(decoded.id).populate('Roles');
   
@@ -44,10 +48,9 @@ const verificarSesion = async (req, res , next) => {
       }
   
       // Aquí puedes realizar acciones adicionales con el usuario encontrado
-  
-      const isAdmin = usuario.Roles.some(role => role.Nombre === 'Admin');
+      const isAdmin = usuario.Roles.some(Rol => Rol.Rol === 'Admin');
       if (isAdmin) {
-        res.json({ message: 'El usuario es administrador' });
+        next()
       } else {
         res.json({ message: 'El usuario no es administrador' });
       }
