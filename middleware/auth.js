@@ -43,7 +43,7 @@ const verificarSesion = async (req, res) => {
   
       // Aquí puedes realizar acciones adicionales con el usuario encontrado
   
-      const isAdmin = usuario.Roles.some(role => role.Nombre === 'admin');
+      const isAdmin = usuario.Roles.some(role => role.Nombre === 'Admin');
       if (isAdmin) {
         res.json({ message: 'El usuario es administrador' });
       } else {
