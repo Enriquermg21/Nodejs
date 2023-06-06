@@ -11,7 +11,7 @@ router.patch('/users/password', async (req, res) => {
     
 
     // Verificar y decodificar el token de restablecimiento de contraseña
-    const decodedToken = jwt.verify(token, 'secreto', { expiresIn: '10s' });
+    const decodedToken = jwt.verify(token, 'instituto-api', { expiresIn: '10s' });
     const userId = decodedToken.id;
 
     // Buscar al usuario en la base de datos por su ID

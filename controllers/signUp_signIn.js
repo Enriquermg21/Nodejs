@@ -28,7 +28,7 @@ module.exports = {
       nuevoUsuario.Roles = [role.id];
     }
     const usuarioGuardado = await nuevoUsuario.save();
-    const token = jwt.sign({id:usuarioGuardado._id},"secreto",{
+    const token = jwt.sign({id:usuarioGuardado._id},"instituto-api",{
       expiresIn:'1h' 
     });
     

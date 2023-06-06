@@ -22,7 +22,7 @@ async function sendMail(email) {
   }
 
   try {
-    const token = jwt.sign({ id: usuario._id }, 'secreto', { expiresIn: '30s' });
+    const token = jwt.sign({ id: usuario._id }, 'instituto-api', { expiresIn: '30s' });
     const accessToken = await oAuth2Client.getAccessToken();
     const transporter = nodemailer.createTransport({
       service: "gmail",
