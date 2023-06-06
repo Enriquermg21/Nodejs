@@ -206,10 +206,10 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, a
 
     const usu = await usuarios.findById(decoded.id).populate('Roles');
     const isAdmin = usu.Roles.some(Rol => Rol.Rol === 'Admin');
-
+    
     // Verificar si el usuario es el propietario del comentario o si es administrador
-    if (usuario._id === comentario.postedBy || usuario.Roles[0] === isAdmin) {
-      //await articulo.updateOne({ $pull: { comentarios: comentario } });
+    if (usuario._id === comentario.postedBy || !isAdmin) {
+      await articulo.updateOne({ $pull: { comentarios: comentario } });
       res.status(200).json({ success: true, message: 'Comentario eliminado correctamente.' });
     } else {
       // El usuario no tiene permisos para eliminar el comentario
