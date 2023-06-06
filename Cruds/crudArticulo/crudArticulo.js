@@ -1,28 +1,31 @@
 const express = require('express');
 const Articulo = require('../../modelos/articulos');
-const multer = require ("multer");
+const multer = require("multer");
 const { join, dirname, extname } = require("path");
 const router = express.Router();
+
 const current_dir = dirname(__filename);
 const multerUpload = multer({
-    
-storage: multer.diskStorage({
-        destination: join(current_dir,'../Uploads'),
-        filename: (req,file,cb)=>{
-            const extension = extname(file.originalname);
-            const filename = file.originalname.split(extension)[0];
-
-            cb(null,`${filename}-${Date.now()}${extension}`);
-        },
-    }),
-    limits: {
-        fileSize: 10000000000, // Tamaño máximo del archivo en bytes (10 MB en este caso)
-      },
+  storage: multer.diskStorage({
+    destination: join(current_dir, '../Uploads'),
+    filename: (req, file, cb) => {
+      const extension = extname(file.originalname);
+      const filename = file.originalname.split(extension)[0];
+      cb(null, `${filename}-${Date.now()}${extension}`);
+    },
+  }),
+  limits: {
+    fileSize: 10000000000, // Tamaño máximo del archivo en bytes (10 MB en este caso)
+  },
 });
+
+// Importar funciones de autenticación
+const { verificarSesion, verificarAdmin } = require('./auth');
+
 // Crear un nuevo artículo
-router.post('/api/CrearArti', multerUpload.single('imagen'), async (req, res, next) => {
+router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), async (req, res, next) => {
   try {
-    const { titulo, contenido, publicado} = req.body;
+    const { titulo, contenido, publicado } = req.body;
 
     const articulo = await Articulo.create({
       titulo,
@@ -76,7 +79,7 @@ router.get('/api/MostrarArti/:id', async (req, res, next) => {
 });
 
 // Actualizar un artículo
-router.put('/api/ActualizarArti/:id', multerUpload.single('imagen'), async (req, res, next) => {
+router.put('/api/ActualizarArti/:id', verificarSesion, multerUpload.single('imagen'), async (req, res, next) => {
   try {
     const { titulo, contenido, publicado } = req.body;
     const updateData = {
@@ -111,7 +114,7 @@ router.put('/api/ActualizarArti/:id', multerUpload.single('imagen'), async (req,
 });
 
 // Eliminar un artículo
-router.delete('/api/BorrarArti/:id', async (req, res, next) => {
+router.delete('/api/BorrarArti/:id', verificarSesion, verificarAdmin, async (req, res, next) => {
   try {
     const articulo = await Articulo.findByIdAndDelete(req.params.id);
     if (!articulo) {
@@ -130,7 +133,7 @@ router.delete('/api/BorrarArti/:id', async (req, res, next) => {
 });
 
 // Agregar un comentario al artículo
-router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
+router.post('/api/articulos/:id/comentarios', verificarSesion, async (req, res, next) => {
   try {
     const { comentario } = req.body;
     const articulo = await Articulo.findById(req.params.id);
@@ -159,11 +162,11 @@ router.post('/api/articulos/:id/comentarios', async (req, res, next) => {
 });
 
 // Eliminar un comentario al artículo
-router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, next) => {
+router.delete('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, async (req, res, next) => {
   try {
     const articuloId = req.params.id;
     const comentarioId = req.params.comentarioId;
-    
+
     // Buscar el artículo por ID y el comentario dentro del artículo
     const articulo = await Articulo.findById(articuloId);
     const comentario = articulo.comentarios.id(comentarioId);
@@ -183,9 +186,7 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, n
       });
     }
     // Verificar si el usuario es el propietario del comentario o si es administrador
-
     if (userId === comentario.usuario || isAdmin) {
-      
       await articulo.updateOne({ $pull: { comentarios: comentario } });
       res.status(200).json({ success: true, message: 'Comentario eliminado correctamente.' });
     } else {
@@ -198,8 +199,7 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', async (req, res, n
 });
 
 // Darle like a un artículo
-router.put('/api/articulos/:id/like', async (req, res, next) => {
-
+router.put('/api/articulos/:id/like', verificarSesion, async (req, res, next) => {
   try {
     const articulo = await Articulo.findById(req.params.id);
 
@@ -230,7 +230,7 @@ router.put('/api/articulos/:id/like', async (req, res, next) => {
 });
 
 // Quitarle like a un artículo
-router.put('/api/articulos/:id/unlike', async (req, res, next) => {
+router.put('/api/articulos/:id/unlike', verificarSesion, async (req, res, next) => {
   try {
     const articulo = await Articulo.findById(req.params.id);
 
