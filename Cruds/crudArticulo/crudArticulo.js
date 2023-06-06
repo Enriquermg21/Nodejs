@@ -21,6 +21,7 @@ const multerUpload = multer({
 
 // Importar funciones de autenticación
 const { verificarSesion, verificarAdmin } = require('../../middleware/auth');
+const { verifyToken } = require('../../middleware/verifyIs');
 
 // Crear un nuevo artículo
 router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), async (req, res, next) => {
@@ -35,11 +36,6 @@ router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), as
         url: req.file.path,
         public_id: req.file.filename
       },
-    });
-
-    res.status(201).json({
-      success: true,
-      articulo
     });
   } catch (error) {
     next(error);

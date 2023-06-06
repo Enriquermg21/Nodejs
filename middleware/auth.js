@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const Usuario = require('../modelos/usuarios'); // Importa el modelo de Usuario
 
 // Verificar si el usuario ha iniciado sesión correctamente
-const verificarSesion = async (req, res) => {
+const verificarSesion = async (req, res , next) => {
     const token = req.headers.authorization;
   
     if (!token) {
@@ -10,18 +10,20 @@ const verificarSesion = async (req, res) => {
     }
   
     try {
+      let token = req.headers['token'] || req.headers['authorization'];
+      if (!token) return res.status(403).json({message: "No se ha recibido ningun token"})
+      if(token.startsWith('Bearer ')){
+        token = token.slice(7,token.length);
+      }
       const decoded = jwt.verify(token, 'instituto-api');
       const usuario = await Usuario.findById(decoded.id);
-  
       if (!usuario) {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
-  
-      // Aquí puedes realizar acciones adicionales con el usuario encontrado
-  
-      res.json({ message: 'Sesión válida' });
+      res.status(403).json({message: "Validado y Articulo creado"})
+      next()
     } catch (error) {
-      res.status(401).json({ message: 'Token inválido' });
+      return res.status(403).json({message: "No autorizado"})
     }
   };
   

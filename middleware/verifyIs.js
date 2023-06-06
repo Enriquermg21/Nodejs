@@ -1,8 +1,9 @@
 const jwt = require('jsonwebtoken');
-const Usuario = require('../models/Usuario');
+const Usuario = require('../modelos/usuarios');
 
 const verifyToken = async(req,res,next)=>{
     try{let token = req.headers['token'] || req.headers['authorization'];
+    
     if (!token) return res.status(403).json({message: "No se ha recibido ningun token"})
     if(token.startsWith('Bearer ')){
       token = token.slice(7,token.length);
@@ -18,4 +19,4 @@ const verifyToken = async(req,res,next)=>{
     }
     
 }
-module.exports = { verifyToken,routeDuration};
+module.exports = { verifyToken};
