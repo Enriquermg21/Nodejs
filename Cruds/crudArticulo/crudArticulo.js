@@ -20,7 +20,7 @@ const multerUpload = multer({
 });
 
 // Importar funciones de autenticación
-const { verificarSesion, verificarAdmin } = require('./auth');
+const { verificarSesion, verificarAdmin } = require('../../middleware/auth');
 
 // Crear un nuevo artículo
 router.post('/api/CrearArti', verificarSesion, multerUpload.single('imagen'), async (req, res, next) => {

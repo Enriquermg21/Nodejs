@@ -1,24 +1,60 @@
-const ErrorResponse = require('../utils/errorResponse');
 const jwt = require('jsonwebtoken');
-const User = require('../modelos/usuarios');
+const Usuario = require('../modelos/usuarios'); // Importa el modelo de Usuario
 
-
-const isAuthenticated = async (req, res, next) => {
-    const { token } = req.cookies;
-
+// Verificar si el usuario ha iniciado sesión correctamente
+const verificarSesion = async (req, res) => {
+    const token = req.headers.authorization;
+  
     if (!token) {
-        return next(new ErrorResponse('Debe iniciar sesion...', 401));
+      return res.status(401).json({ message: 'Acceso no autorizado. No se proporcionó un token de autenticación.' });
     }
-
+  
     try {
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id);
-        next();
-
+      const decoded = jwt.verify(token, 'instituto-api');
+      const usuario = await Usuario.findById(decoded.id);
+  
+      if (!usuario) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      // Aquí puedes realizar acciones adicionales con el usuario encontrado
+  
+      res.json({ message: 'Sesión válida' });
     } catch (error) {
-        return next(new ErrorResponse('Debe iniciar sesion...', 401));
+      res.status(401).json({ message: 'Token inválido' });
     }
-}
-
-module.exports = { isAuthenticated,routeDuration};
+  };
+  
+  // Verificar si el usuario es administrador
+  const verificarAdmin = async (req, res) => {
+    const token = req.headers.authorization;
+  
+    if (!token) {
+      return res.status(401).json({ message: 'Acceso no autorizado. No se proporcionó un token de autenticación.' });
+    }
+  
+    try {
+      const decoded = jwt.verify(token, 'instituto-api');
+      const usuario = await Usuario.findById(decoded.id).populate('Roles');
+  
+      if (!usuario) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+  
+      // Aquí puedes realizar acciones adicionales con el usuario encontrado
+  
+      const isAdmin = usuario.Roles.some(role => role.Nombre === 'admin');
+      if (isAdmin) {
+        res.json({ message: 'El usuario es administrador' });
+      } else {
+        res.json({ message: 'El usuario no es administrador' });
+      }
+    } catch (error) {
+      res.status(401).json({ message: 'Token inválido' });
+    }
+  };
+  
+  module.exports = {
+    verificarSesion,
+    verificarAdmin
+  };
