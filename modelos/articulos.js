@@ -1,5 +1,14 @@
 const mongoose = require('mongoose');
 
+const SubComentarioSchema = new mongoose.Schema({
+  text: String,
+  created: { type: Date, default: Date.now },
+  postedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'usuarios',
+  },
+});
+
 const ComentarioSchema = new mongoose.Schema({
   text: String,
   created: { type: Date, default: Date.now },
@@ -7,7 +16,7 @@ const ComentarioSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'usuarios',
   },
-  comentarios: [this],
+  comentarios: [SubComentarioSchema],
 });
 
 const ArticuloSchema = new mongoose.Schema(
@@ -35,5 +44,6 @@ const ArticuloSchema = new mongoose.Schema(
 );
 
 const Articulo = mongoose.model('Articulo', ArticuloSchema);
+const Comentario = mongoose.model('Comentario', ComentarioSchema);
 
-module.exports = Articulo;
+module.exports = Articulo,Comentario;

@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Articulo = require('../../modelos/articulos');
+const Comentario = require('../../modelos/articulos');
 const multer = require("multer");
 const { join, dirname, extname } = require("path");
 const router = express.Router();
@@ -155,13 +156,14 @@ router.post('/api/articulos/:id/comentarios', verificarSesion, async (req, res, 
         message: 'El artículo no existe'
       });
     }
-    articulo.comentarios.push({
+    
+    const coment = articulo.comentarios.push({
       text: comentario,
       postedBy: usuario._id
     });
-
+    console.log(coment);
     await articulo.save();
-
+    
     res.status(200).json({
       success: true,
       articulo
@@ -242,20 +244,19 @@ router.post('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, asy
       });
     }
 
-    const comentarioPadre = articulo.comentarios.id(req.params.comentarioId);
+    const comentarioPadre = await Comentario.findOne({ 'comentarios._id': req.params.comentarioId });
+if (!comentarioPadre) {
+  return res.status(404).json({
+    success: false,
+    message: 'El comentario padre no existe'
+  });
+}
 
-    if (!comentarioPadre) {
-      return res.status(404).json({
-        success: false,
-        message: 'El comentario padre no existe'
-      });
-    }
-
-    comentarioPadre.comentarios.push({
+    const com = comentarioPadre.comentarios.push({
       text: comentario,
       postedBy: usuario._id
     });
-
+    console.log(com)
     await articulo.save();
 
     res.status(200).json({
