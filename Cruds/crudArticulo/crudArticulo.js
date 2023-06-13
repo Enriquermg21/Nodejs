@@ -220,6 +220,101 @@ router.delete('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, a
   }
 });
 
+//Añadir comentario a otro comentario
+router.post('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, async (req, res, next) => {
+  try {
+    let token = req.headers['token'] || req.headers['authorization'];
+    if (!token) return res.status(403).json({ message: "No se ha recibido ningún token" });
+    if (token.startsWith('Bearer ')) {
+      token = token.slice(7, token.length);
+    }
+
+    const decoded = jwt.verify(token, 'instituto-api');
+    const usuario = await usuarios.findById(decoded.id);
+
+    const { comentario } = req.body;
+    const articulo = await Articulo.findById(req.params.id);
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    const comentarioPadre = articulo.comentarios.id(req.params.comentarioId);
+
+    if (!comentarioPadre) {
+      return res.status(404).json({
+        success: false,
+        message: 'El comentario padre no existe'
+      });
+    }
+
+    comentarioPadre.comentarios.push({
+      text: comentario,
+      postedBy: usuario._id
+    });
+
+    await articulo.save();
+
+    res.status(200).json({
+      success: true,
+      articulo
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+// Actualizar un comentario
+router.put('/api/articulos/:id/comentarios/:comentarioId', verificarSesion, async (req, res, next) => {
+  try {
+    let token = req.headers['token'] || req.headers['authorization'];
+    if (!token) return res.status(403).json({ message: "No se ha recibido ningún token" });
+    if (token.startsWith('Bearer ')) {
+      token = token.slice(7, token.length);
+    }
+
+    const decoded = jwt.verify(token, 'instituto-api');
+    const usuario = await usuarios.findById(decoded.id);
+
+    const { comentario } = req.body;
+    const articulo = await Articulo.findById(req.params.id);
+
+    if (!articulo) {
+      return res.status(404).json({
+        success: false,
+        message: 'El artículo no existe'
+      });
+    }
+
+    const comentarioPadre = articulo.comentarios.id(req.params.comentarioId);
+
+    if (!comentarioPadre) {
+      return res.status(404).json({
+        success: false,
+        message: 'El comentario no existe'
+      });
+    }
+
+    // Verificar si el usuario es el propietario del comentario
+    if (usuario._id.equals(comentarioPadre.postedBy)) {
+      comentarioPadre.text = comentario;
+      await articulo.save();
+      res.status(200).json({
+        success: true,
+        articulo
+      });
+    } else {
+      // El usuario no tiene permisos para actualizar el comentario
+      res.status(403).json({ success: false, message: 'No tienes permisos para actualizar este comentario.' });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 // Darle like a un artículo
 router.put('/api/articulos/:id/like', verificarSesion, async (req, res, next) => {
   try {
